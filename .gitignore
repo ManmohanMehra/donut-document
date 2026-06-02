@@ -1,0 +1,27 @@
+# Models and Checkpoints
+checkpoints/
+checkpoints 2/
+*.safetensors
+*.bin
+*.pt
+*.zip
+
+# Data
+data/
+batch_results*/
+*.jsonl
+
+# Python artifacts
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Environment and OS
+.env
+.venv/
+env/
+venv/
+.DS_Store
+
+# Experiment Tracking
+wandb/
