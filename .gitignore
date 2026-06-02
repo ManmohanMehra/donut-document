@@ -1,9 +1,5 @@
-# Models and Checkpoints
-checkpoints/
-checkpoints 2/
-*.safetensors
-*.bin
-*.pt
+# Models and Checkpoints (Handled via Git LFS)
+# We allow these so LFS can track them
 *.zip
 
 # Data
