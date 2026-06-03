@@ -5,28 +5,32 @@ from PIL import Image
 from pathlib import Path
 
 # Simulate real-world passport photo conditions
+# Includes degradation augmentations to handle bad quality images
 augment = A.Compose([
+    # --- Geometric ---
     A.Rotate(limit=8, p=0.8),
     A.Perspective(scale=(0.02, 0.06), p=0.6),
-    A.RandomBrightnessContrast(
-        brightness_limit=0.3,
-        contrast_limit=0.3,
-        p=0.7
-    ),
-    A.GaussNoise(var_limit=(10, 50), p=0.5),
-    A.MotionBlur(blur_limit=3, p=0.3),
-    A.ImageCompression(quality_lower=65, p=0.4),
-    A.CoarseDropout(
-        max_holes=3,
-        max_height=20,
-        max_width=40,
-        p=0.2                      # Simulate thumb/finger covering part of card
-    ),
-    A.HueSaturationValue(
-        hue_shift_limit=10,
-        sat_shift_limit=20,
-        p=0.4                      # Colour temperature variation from different phones
-    ),
+
+    # --- Colour & Light ---
+    A.RandomBrightnessContrast(brightness_limit=0.3, contrast_limit=0.3, p=0.7),
+    A.HueSaturationValue(hue_shift_limit=10, sat_shift_limit=20, p=0.4),
+    A.RandomShadow(p=0.3),                                    # Simulate hand/lighting shadow
+
+    # --- Noise & Blur ---
+    A.GaussNoise(std_range=(0.1, 0.5), p=0.5),
+    A.ISONoise(color_shift=(0.01, 0.05), intensity=(0.1, 0.5), p=0.4),  # Phone ISO noise
+    A.MotionBlur(blur_limit=5, p=0.4),
+    A.Sharpen(alpha=(0.0, 0.5), lightness=(0.5, 1.0), p=0.3), # Over-sharpened phone processing
+
+    # --- Compression & Resolution ---
+    A.Downscale(scale_range=(0.4, 0.7), p=0.4),         # Simulate low-res camera (Albumentations 2.0 syntax)
+    A.ImageCompression(quality_range=(40, 100), p=0.5),        # Aggressive WhatsApp compression
+
+    # --- Occlusion ---
+    A.CoarseDropout(num_holes_range=(1, 3), hole_height_range=(10, 20), hole_width_range=(20, 40), p=0.2), 
+
+    # --- Glare / Overexposure ---
+    A.RandomFog(fog_coef_range=(0.1, 0.3), p=0.2),             # Glare sim
 ])
 
 def augment_dataset(
