@@ -49,7 +49,7 @@ training_args = Seq2SeqTrainingArguments(
     metric_for_best_model="eval_loss",
     save_total_limit=2,
     logging_steps=10,
-    report_to="wandb",              # Re-enabled: watch val_loss to know when to stop
+    report_to="tensorboard",         # LOCAL logs only (Private & Safe)
     run_name="donut-passport-v2-hires",
     push_to_hub=False
 )

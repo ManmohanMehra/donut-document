@@ -1,6 +1,5 @@
 import sys
 import os
-
 # Allow running from the serve/ directory
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
