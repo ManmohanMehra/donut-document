@@ -1,9 +1,11 @@
 SCHEMAS = {
 
+    # ── Iteration 1 ───────────────────────────────────────────────────────────
+
     "indian_passport": {
         "card_type": "indian_passport",
         "type": None,              # P=Regular, S=Service, D=Diplomatic, O=Official
-        "country_code": None,  # 3-letter ISO code e.g. GBR, USA, DEU
+        "country_code": None,      # 3-letter ISO code e.g. IND
         "surname": None,
         "given_names": None,
         "passport_number": None,
@@ -11,10 +13,10 @@ SCHEMAS = {
         "dob": None,               # DD/MM/YYYY
         "sex": None,               # M / F
         "place_of_birth": None,
-        "place_of_issue": None,    # City where passport was issued — e.g. BENGALURU
+        "place_of_issue": None,
         "date_of_issue": None,
         "date_of_expiry": None,
-        "mrz_line1": None,         # Raw MRZ string — used for checksum validation
+        "mrz_line1": None,
         "mrz_line2": None,
     },
 
@@ -32,9 +34,52 @@ SCHEMAS = {
         "mrz_line2": None,
     },
 
-    # Add future card types here following the same pattern
-    # "aadhaar": { ... }
-    # "pan": { ... }
+    # ── Iteration 2 shortlist ─────────────────────────────────────────────────
+    # IND: 111 samples | ARE-FED-CARD: 47 | COD: 45 | ZWE: 60
+
+    "are_fed_card": {
+        "card_type": "are_fed_card",
+        "emirates_id": None,       # 784-XXXX-XXXXXXX-X
+        "surname": None,
+        "given_names": None,
+        "nationality": None,
+        "dob": None,               # DD/MM/YYYY
+        "sex": None,
+        "date_of_expiry": None,
+        "issuing_authority": None,
+    },
+
+    "cod_passport": {
+        "card_type": "cod_passport",
+        "type": None,
+        "surname": None,
+        "given_names": None,
+        "passport_number": None,
+        "nationality": None,
+        "dob": None,
+        "sex": None,
+        "place_of_birth": None,
+        "date_of_issue": None,
+        "date_of_expiry": None,
+        "mrz_line1": None,
+        "mrz_line2": None,
+    },
+
+    "zwe_passport": {
+        "card_type": "zwe_passport",
+        "type": None,
+        "surname": None,
+        "given_names": None,
+        "passport_number": None,
+        "nationality": None,
+        "dob": None,
+        "sex": None,
+        "place_of_birth": None,
+        "date_of_issue": None,
+        "date_of_expiry": None,
+        "mrz_line1": None,
+        "mrz_line2": None,
+    },
 }
 
 # 1. Quick-access constant (used by FastAPI for input validation)

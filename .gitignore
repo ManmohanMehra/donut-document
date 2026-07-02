@@ -12,6 +12,11 @@ __pycache__/
 
 # Environment and OS
 .env
+.env.*
+*.env
+secrets.json
+credentials.json
+application_default_credentials.json
 .venv/
 env/
 venv/
