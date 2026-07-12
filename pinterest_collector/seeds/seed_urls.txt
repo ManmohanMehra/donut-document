@@ -1,0 +1,6 @@
+# One Pinterest pin URL per line — the "known-good" pins you already found
+# by hand, where opening the pin surfaced more relevant related pins than
+# keyword search did. crawl.py starts its BFS from these, not from search.
+#
+# Example:
+# https://www.pinterest.com/pin/123456789012345678/

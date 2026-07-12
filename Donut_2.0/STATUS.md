@@ -10,7 +10,7 @@ below is 19).
 | Indian passport samples verified (`data/real`) | 19 verified, 1 orphan image | `pass_21.jpeg` has no `metadata.jsonl` entry — needs labeling or removal |
 | Held-out test set (10 images, never trained on) | Not carved out yet | Run `make_holdout.py` before any augmentation |
 | are_fed_card / cod / zwe raw images | Not collected | Folders created empty at `data/{are_fed_card,cod,zwe}/images/` |
-| Gemini pre-annotation pipeline | Code ready (`vision_label.py`) | Needs `GOOGLE_API_KEY` — never commit it, terminal env var only |
+| Gemini pre-annotation pipeline | Code ready (`vision_label.py`), migrated off deprecated SDK | Needs `GOOGLE_API_KEY` — never commit it, terminal env var only. Was on `google-generativeai` (end-of-support, no more fixes) — switched to `google-genai` |
 | Label Studio verification | Not started for iteration 2 types | IND set (19) was verified manually in iteration 1 |
 | Augmentation pipeline | Code ready (`augment.py`) | Last run produced 598 images in `data/augmented` from the pre-holdout 19 |
 | Token registration | **Stale — must rerun** | `checkpoints/donut-passport-processor` has 19 tokens (iteration-1 schema only: indian_passport + foreign_passport). `schemas.py` now needs **44** tokens (5 card types). Run `add_tokens.py` before training on multi-type data. |

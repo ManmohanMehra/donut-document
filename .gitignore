@@ -1,7 +1,6 @@
 # Models and Checkpoints (Handled via Git LFS)
 # We allow these so LFS can track them
 # Data
-data/
 batch_results*/
 *.jsonl
 
