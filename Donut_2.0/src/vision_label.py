@@ -35,6 +35,7 @@ Usage:
 
 import os
 import json
+import re
 import sys
 import time
 from pathlib import Path
@@ -52,7 +53,7 @@ except ImportError:
     print("  pip install google-genai pillow tqdm")
     sys.exit(1)
 
-MODEL_NAME = "gemini-2.0-flash"
+MODEL_NAME = "gemini-3.5-flash"  # gemini-2.0-flash was deprecated 2026-06-01 (free-tier quota drops to 0)
 
 
 def _setup_client():
@@ -115,6 +116,32 @@ def _extract_fields(client, image_path: str, card_type: str) -> dict:
     return json.loads(raw.strip())
 
 
+# Free-tier RPM isn't published per-model and varies by account tier (see
+# https://aistudio.google.com/rate-limit for your actual numbers) — rather
+# than guess a fixed request interval and risk being wrong in either
+# direction, this reacts to real transient failures instead:
+#   429 RESOURCE_EXHAUSTED — rate limit; Google's error includes a retryDelay, used directly
+#   503 UNAVAILABLE / 500 INTERNAL — transient server overload; no retryDelay given,
+#     so this backs off exponentially (15s, 30s, 60s, ...)
+# Anything else (bad request, auth failure, malformed JSON) is not transient
+# and is raised immediately rather than wasting retries on it.
+MAX_TRANSIENT_RETRIES = 5
+
+
+def _extract_fields_with_retry(client, image_path: str, card_type: str) -> dict:
+    for attempt in range(MAX_TRANSIENT_RETRIES + 1):
+        try:
+            return _extract_fields(client, image_path, card_type)
+        except Exception as e:
+            msg = str(e)
+            is_transient = any(s in msg for s in ("429", "RESOURCE_EXHAUSTED", "503", "UNAVAILABLE", "500", "INTERNAL"))
+            if not is_transient or attempt == MAX_TRANSIENT_RETRIES:
+                raise
+            m = re.search(r"retryDelay['\"]?\s*:\s*['\"]?(\d+(?:\.\d+)?)s", msg)
+            delay = float(m.group(1)) + 1.0 if m else min(60.0, 15.0 * (2 ** attempt))
+            time.sleep(delay)
+
+
 def _mrz_flag(fields: dict) -> str | None:
     m1 = fields.get("mrz_line1") or ""
     m2 = fields.get("mrz_line2") or ""
@@ -143,26 +170,19 @@ def main(input_dir: str, output_file: str, card_type: str):
 
     print(f"Gemini labeling {len(images)} images as '{card_type}' ...")
     if backend == "aistudio":
-        print(f"Free tier: 15 req/min — estimated time ~{len(images) // 15 + 1} min\n")
+        print("Free tier RPM varies by account — see https://aistudio.google.com/rate-limit. "
+              "Hitting a real 429 backs off automatically using Google's suggested retry delay.\n")
     else:
         print()
 
     errors = []
     mrz_flags = []
-    last_request_time = 0.0
 
     with open(output_file, "w", encoding="utf-8") as out:
         for img_name in tqdm(images):
             img_path = str(input_path / img_name)
             try:
-                # Rate limit for free tier: 15 req/min = 4s between requests
-                if backend == "aistudio":
-                    elapsed = time.time() - last_request_time
-                    if elapsed < 4.1:
-                        time.sleep(4.1 - elapsed)
-
-                fields = _extract_fields(client, img_path, card_type)
-                last_request_time = time.time()
+                fields = _extract_fields_with_retry(client, img_path, card_type)
 
                 fields.pop("card_type", None)
 
@@ -182,7 +202,6 @@ def main(input_dir: str, output_file: str, card_type: str):
             except Exception as e:
                 errors.append((img_name, str(e)))
                 print(f"\nError on {img_name}: {e}")
-                last_request_time = time.time()
 
     print(f"\nDone. {len(images) - len(errors)}/{len(images)} images labeled.")
     if mrz_flags:

@@ -43,8 +43,8 @@ def _backfill_from_mrz(doc: dict) -> dict:
 
     m2 = doc.get("mrz_line2", "")
     if len(m2) >= 44:
-        if not doc.get("passport_number"):
-            doc["passport_number"] = m2[0:9].replace("<", "").strip()
+        if not doc.get("document_number"):
+            doc["document_number"] = m2[0:9].replace("<", "").strip()
         if not doc.get("dob"):
             raw_dob = m2[13:19]
             if raw_dob.isdigit():
