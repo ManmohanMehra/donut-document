@@ -23,7 +23,7 @@ except ImportError:
     print("Run: pip install google-genai   (the old google-generativeai package is deprecated)")
     sys.exit(1)
 
-MODEL_NAME = "gemini-2.0-flash"
+MODEL_NAME = "gemini-3.5-flash"  # gemini-2.0-flash was deprecated 2026-06-01 (free-tier quota drops to 0)
 
 # Extend this with whatever card types Donut_2.0/src/schemas.py currently supports.
 KNOWN_CARD_TYPES = [
